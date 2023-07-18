@@ -7,7 +7,7 @@
 // Modules imports
 import { NotificationService } from './../../../services/notification.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 
@@ -40,31 +40,31 @@ export class $formComponentName implements OnInit {
   readonly CONFLICT_ERROR = 409;
   readonly INTERNAL_SERVER_ERROR = 500;
 
-  private title = '${entity.name} Form';
-  private $LCentityName: ${entity.name};
-  private form: FormGroup;
-  private ids;
+  public title = '${entity.name} Form';
+  public $LCentityName!: ${entity.name};
+  public form!: FormGroup;
+  public ids:any;
 
 #if ($attrsFKs.size() > 0)
 #foreach ( $entitiesFK in $attrsFKs)
   // $entitiesFK Select
-  private ${fn.uncapitalize($entitiesFK)}sData: ${entitiesFK}[];
-  private selected${entitiesFK}Id: number;
+  public ${fn.uncapitalize($entitiesFK)}sData: ${entitiesFK}[];
+  public selected${entitiesFK}Id: number;
 
 #end
 #end
   constructor(
 #if ($attrsFKs.size() > 0)
 #foreach ( $entitiesFK in $attrsFKs)
-    private _${fn.uncapitalize($entitiesFK)}Service: ${entitiesFK}Service,
+    public _${fn.uncapitalize($entitiesFK)}Service: ${entitiesFK}Service,
 #end
 #end
-    private $_entityService: $baseServiceName,
+    public $_entityService: $baseServiceName,
     private _route: ActivatedRoute,
     private _router: Router,
     private _formBuilder: FormBuilder,
     private _notificationService: NotificationService,
-    public dialog: MdDialog) { }
+    public dialog: MatDialog) { }
 
   ngOnInit() {
     this.getIdFromRouteParams();
@@ -87,13 +87,33 @@ export class $formComponentName implements OnInit {
   fetch${entitiesFK}s = () => {
     this._${fn.uncapitalize($entitiesFK)}Service.getAll().subscribe(
       (data: ${entitiesFK}[]) => this.${fn.uncapitalize($entitiesFK)}sData = data,
-      error => console.error(error));
+      (error: any) => console.error(error));
   }
 
 #end
 #end
   initForm = () => {
     this.form = this._formBuilder.group(this.getNewForm());
+	//Inicializamos el modelo
+    this.$LCentityName = {
+#foreach ( $attrib in $entity.attributes)
+#if ($foreach.count < $entity.attributes.size())
+#if ($attrib.isStringType()) 
+      ${attrib.name}: "", 
+#else
+      ${attrib.name}: null, 
+#end
+#else
+#if ($attrib.isStringType()) 
+      ${attrib.name}: "" 
+#else
+      ${attrib.name}: null 
+#end
+#end
+#end
+    }	
+
+
     if (!_.isEmpty(this.ids)) {
       this.load();
     }
@@ -198,7 +218,7 @@ export class $formComponentName implements OnInit {
 		};
         this.form = this._formBuilder.group(this.getNewForm(this.${LCentityName}));
       },
-      error => {
+      (error: any) => {
         if (error.status === this.NOT_FOUND_ERROR) {
           this._notificationService.error(error.statusText, 'Entity not found in database');
         } else if (error.status === this.INTERNAL_SERVER_ERROR) {
@@ -220,11 +240,11 @@ export class $formComponentName implements OnInit {
 
   add = () => {
     this.${_entityService}.add(this.form.value).subscribe(
-      result => {
+      (result: any) => {
         this._notificationService.success('Success', '${entity.name} added successfuly');
         this._router.navigate(['./${LCentityName}-form', ${entity.keyAttributesNamesAsString(', ', 'this.form.value.', '')}]);
       },
-      error => {1
+      (error: any) => {1
         if (error.status === this.CONFLICT_ERROR) {
           this._notificationService.error(error.statusText, 'Id already used in database');
         } else if (error.status === this.INTERNAL_SERVER_ERROR) {
@@ -237,8 +257,8 @@ export class $formComponentName implements OnInit {
 
   update = () => {
     this.${_entityService}.update(<${entity.name}>this.form.getRawValue(), this.ids).subscribe(
-      result => this._notificationService.success('Success', '${entity.name} edited successfuly'),
-      error => {
+      (result: any) => this._notificationService.success('Success', '${entity.name} edited successfuly'),
+      (error: any) => {
         if (error.status === this.NOT_FOUND_ERROR) {
           this._notificationService.error(error.statusText, 'Entity not found in database');
         } else if (error.status === this.INTERNAL_SERVER_ERROR) {
@@ -256,7 +276,7 @@ export class $formComponentName implements OnInit {
       const dialogRef = this.dialog.open(DeleteDialogComponent, {
         data: `$LCentityName: ${entity.keyAttributesNamesAsString(', ', $entityDeleteDialogPrefix, '}')}`
       });
-      dialogRef.afterClosed().subscribe(result => {
+      dialogRef.afterClosed().subscribe((result: any) => {
         if (result) {
           this.deleteBadge(${entity.keyAttributesNamesAsString(', ', $entityDeletePrefix, '')});
         }
@@ -264,10 +284,10 @@ export class $formComponentName implements OnInit {
     }
   }
 
-  deleteBadge = (${entity.keyAttributesNamesAsString(', ')}): void => {
+  deleteBadge = (${entity.keyAttributesNamesAsString(', ')}: any): void => {
     // Call delete service
     this._${LCentityName}Service.delete(${entity.keyAttributesNamesAsString(', ')}).subscribe(
-      result => {
+      (result:any) => {
         this._router.navigate(['./${LCentityName}-list']);
 
         this._notificationService.success(
@@ -275,7 +295,7 @@ export class $formComponentName implements OnInit {
 #set ($entityDeleteNotificationPrefix = "${DOLLAR}{")
           `The ${LCentityName} entry with the id(s)='${entity.keyAttributesNamesAsString(', ', $entityDeleteNotificationPrefix, '}')}' was deleted successfuly`);
       },
-      error => {
+      (error: any) => {
         if (error.status === this.NOT_FOUND_ERROR) {
           this._notificationService.error(error.statusText, 'Entity not found in database');
         } else if (error.status === this.INTERNAL_SERVER_ERROR) {

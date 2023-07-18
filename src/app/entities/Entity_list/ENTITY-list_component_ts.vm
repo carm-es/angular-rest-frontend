@@ -6,7 +6,7 @@ $env.setLanguage('TypeScript')
 // Modules imports
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
 // Services imports
 import { PagerService } from './../../../services/pager.service';
@@ -27,22 +27,22 @@ import { DeleteDialogComponent } from './../../../delete-dialog/delete-dialog.co
 })
 export class $listComponentName implements OnInit, OnChanges {
 
-  private listOf${entity.name}s: ${entity}[];
+  private listOf${entity.name}s!: ${entity}[];
   private listId = '$fn.toUpperCase(${entity.name})_COMPONENT_LIST';
 
-  private title = 'List of ${entity.name}s';
+  public title = 'List of ${entity.name}s';
 
   // pager object
-  private pager: any = {};
+  public pager: any = {};
   // paged items
-  private pagedItems: any[];
+  public pagedItems!: any[];
 
   constructor(
-    private $_entityService: $baseServiceName,
+    public $_entityService: $baseServiceName,
     private _router: Router,
     private _notificationService: NotificationService,
     private pagerService: PagerService,
-    public dialog: MdDialog) { }
+    public dialog: MatDialog) { }
 
   ngOnInit() {
     // On init get all ${entity.name}s
@@ -64,22 +64,22 @@ export class $listComponentName implements OnInit, OnChanges {
         this.listOf${entity.name}s = data;
         this.setPage(1);
       },
-      error => {
+      (error: any) => {
         this._notificationService.error(
           'Error',
           'An error occured when trying to reach the server');
     });
   }
 
-  edit${entity.name} = ($entity.keyAttributesNamesAsString(', ')): void => {
+  edit${entity.name} = ($entity.keyAttributesNamesAsString(': any, '): any): void => {
     // Navigate to $LCentityName form component
     this.goTo${entity.name}Form($entity.keyAttributesNamesAsString(', '));
   }
 
-  delete${entity.name} = ($entity.keyAttributesNamesAsString(', ')): void => {
+  delete${entity.name} = ($entity.keyAttributesNamesAsString(': any, '): any): void => {
     // Call delete service
     this.${_entityService}.delete($entity.keyAttributesNamesAsString(', ')).subscribe(
-      result => {
+      (result: any) => {
         // Notify ${entity.name} list to refresh
         EmitterService.get(this.listId).emit(result);
 
@@ -87,22 +87,22 @@ export class $listComponentName implements OnInit, OnChanges {
           'Deleted',
           `The $LCentityName entry with the id='$entity.keyAttributesNamesAsString(', ', '${', '}')' was deleted successfuly`);
       },
-      error => {
+      (error: any) => {
         this._notificationService.error(
           'Error',
           'An error occured when trying to reach the server');
       });
   }
 
-  goTo${entity.name}Form($entity.keyAttributesNamesAsString(', ')) {
+  goTo${entity.name}Form($entity.keyAttributesNamesAsString(': any, '): any) {
     this._router.navigate(['./${LCentityName}-form', $entity.keyAttributesNamesAsString(', ')]);
   }
 
-  deleteConfirmation = ($entity.keyAttributesNamesAsString(', ')) => {
+  deleteConfirmation = ($entity.keyAttributesNamesAsString(': any, '): any) => {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: `$LCentityName: $entity.keyAttributesNamesAsString(', ', '${', '}')`
     });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.delete${entity.name}($entity.keyAttributesNamesAsString(', '));
       }

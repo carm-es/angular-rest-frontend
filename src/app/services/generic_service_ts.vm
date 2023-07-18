@@ -2,20 +2,18 @@
 
 import { Configuration } from './../app.configuration';
 import { Injectable } from '@angular/core';
-import { Http, Response, Headers } from '@angular/http';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/observable/throw';
-import { Observable } from 'rxjs/Observable';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, throwError} from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 export abstract class GenericService<T> {
 
-    protected headers: Headers;
+    protected headers: HttpHeaders;
     protected actionUrl: string;
 
-    constructor(private _http: Http, private _configuration: Configuration, private url: string) {
+    constructor(private _http: HttpClient, private _configuration: Configuration, private url: string) {
         this.actionUrl = _configuration.serverWithApiUrl + url;
-        this.headers = new Headers();
+        this.headers = new HttpHeaders();
         this.headers.append('Content-Type', 'application/json');
         this.headers.append('Accept', 'application/json');
     }
@@ -24,10 +22,11 @@ export abstract class GenericService<T> {
      * Get all object by the GET Rest service
      * @return promise
      */
-    public getAll = (): Observable<T[]> => {
-        return this._http.get(this.actionUrl)
-            .map((response: Response) => response.json() as T[])
-            .catch(this.handleError);
+    public getAll(): Observable<T[]> {
+     return this._http.get<T[]>(this.actionUrl)
+       .pipe(
+         catchError(this.handleError)
+       );
     }
 
     /**
@@ -35,10 +34,11 @@ export abstract class GenericService<T> {
      * @param keys array of Identifiers
      * @return promise
      */
-    public getSingle = (keys: any[]): Observable<T> => {
-        return this._http.get(this.actionUrl + this.getKeysUrl(keys))
-            .map((response: Response) => response.json() as T)
-            .catch(this.handleError);
+    public getSingle(keys: any[]): Observable<T> {
+     return this._http.get<T>(this.actionUrl + this.getKeysUrl(keys))
+       .pipe(
+         catchError(this.handleError)
+       );
     }
 
     /**
@@ -47,10 +47,11 @@ export abstract class GenericService<T> {
      * @param t Object to update
      * @return promise
      */
-    public add = (newT: T): Observable<T> => {
-        return this._http.post(this.actionUrl, JSON.stringify(newT), { headers: this.headers })
-            .map((response: Response) => response.json() as T)
-            .catch(this.handleError);
+    public add(newT: T): Observable<T> {
+     return this._http.post<T>(this.actionUrl, JSON.stringify(newT), { headers: this.headers })
+       .pipe(
+         catchError(this.handleError)
+       );
     }
 
     /**
@@ -59,9 +60,11 @@ export abstract class GenericService<T> {
      * @param keys array of Identifiers
      * @return promise
      */
-    public update = (t: T, keys: any[]): Observable<T> => {
-        return this._http.put(this.actionUrl + this.getKeysUrl(keys), JSON.stringify(t), { headers: this.headers })
-            .catch(this.handleError);
+    public update(t: T, keys: any[]): Observable<T> {
+     return this._http.put<T>(this.actionUrl + this.getKeysUrl(keys), JSON.stringify(t), { headers: this.headers })
+       .pipe(
+         catchError(this.handleError)
+       );
     }
 
     /**
@@ -69,14 +72,16 @@ export abstract class GenericService<T> {
      * @param keys array of Identifiers
      * @return promise
      */
-    public delete = (...keys: any[]): Observable<Response> => {
-        return this._http.delete(this.actionUrl + this.getKeysUrl(keys))
-            .catch(this.handleError);
+    public delete(...keys: any[]): Observable<HttpResponse<any>> {
+     return this._http.delete<HttpResponse<any>>(this.actionUrl + this.getKeysUrl(keys))
+       .pipe(
+         catchError(this.handleError)
+       );
     }
 
     // Function to throw errors
-    private handleError(error: Response) {
-        return Observable.throw(error);
+    private handleError(error: any): Observable<never> {
+     return throwError(() => error);
     }
 
     /**
