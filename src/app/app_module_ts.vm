@@ -48,6 +48,7 @@ import { CardModule } from 'primeng/card';
 import { CalendarModule } from 'primeng/calendar';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
+import { MenubarModule } from 'primeng/menubar';
 
 // Services
 import { Configuration } from './app.configuration';
@@ -97,7 +98,8 @@ import { PagerService } from './services/pager.service';
     CardModule,
     CalendarModule,
     InputNumberModule,
-    DropdownModule
+    DropdownModule,
+    MenubarModule
   ],
   providers: [
 #foreach ($entity in $selectedEntities)
