@@ -19,4 +19,36 @@ export class $baseServiceName extends GenericService<${entity.name}>  {
         super(_http, _configuration, '$fn.uncapitalize($entity.name)');
     }
 
+    /**
+    * Returns an initialized object
+    * @return object type T ArticuloIniciativa
+    */
+    public getInitializedObject(): $entity.name{
+        return {
+#foreach ( $attrib in $entity.attributes)
+#if ($foreach.count < $entity.attributes.size())
+#if ($attrib.isStringType()) 
+                ${attrib.name}: "", 
+#elseif ($attrib.isNumberType())
+                ${attrib.name}: 0,
+#elseif ($attrib.isTemporalType())
+                ${attrib.name}: new Date(),
+#else
+                ${attrib.name}: null, 
+#end
+#else
+#if ($attrib.isStringType()) 
+                ${attrib.name}: "" 
+#elseif ($attrib.isNumberType())
+                ${attrib.name}: 0
+#elseif ($attrib.isTemporalType())
+                ${attrib.name}: new Date()
+#else
+                ${attrib.name}: null 
+#end
+#end
+#end
+               };
+    }  
+
 }

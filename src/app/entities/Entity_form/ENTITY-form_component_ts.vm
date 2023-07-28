@@ -19,7 +19,7 @@ import { $entity.name } from './../$fn.uncapitalize($LCentityNameModel)';
 import { $baseServiceName } from './../services/$fn.uncapitalize($LCentityNameService)';
 #set($attrsFKs = [])
 #foreach ($attribute in $entity.attributes)
-#if ($attribute.isFK())
+#if ($attribute.isFKSimple())
 #if( $attrsFKs.add($attribute.referencedEntityName) )#end
 #set($referencedEntity = $attribute.referencedEntityName)
 import { ${referencedEntity} } from './../../${fn.uncapitalize($referencedEntity)}/${fn.uncapitalize($referencedEntity)}.model';
@@ -48,8 +48,8 @@ export class $formComponentName implements OnInit {
 #if ($attrsFKs.size() > 0)
 #foreach ( $entitiesFK in $attrsFKs)
   // $entitiesFK Select
-  public ${fn.uncapitalize($entitiesFK)}sData: ${entitiesFK}[];
-  public selected${entitiesFK}Id: number;
+  public ${fn.uncapitalize($entitiesFK)}sData!: ${entitiesFK}[];
+  public selected${entitiesFK}Id!: number;
 
 #end
 #end
@@ -86,7 +86,7 @@ export class $formComponentName implements OnInit {
 #foreach ( $entitiesFK in $attrsFKs)
   fetch${entitiesFK}s = () => {
     this._${fn.uncapitalize($entitiesFK)}Service.getAll().subscribe(
-      (data: ${entitiesFK}[]) => this.${fn.uncapitalize($entitiesFK)}sData = data,
+      (data: ${entitiesFK}[]) => this.${fn.uncapitalize($entitiesFK)}sData = [ this._${fn.uncapitalize($entitiesFK)}Service.getInitializedObject() , ...data],
       (error: any) => console.error(error));
   }
 
@@ -95,23 +95,7 @@ export class $formComponentName implements OnInit {
   initForm = () => {
     this.form = this._formBuilder.group(this.getNewForm());
 	//Inicializamos el modelo
-    this.$LCentityName = {
-#foreach ( $attrib in $entity.attributes)
-#if ($foreach.count < $entity.attributes.size())
-#if ($attrib.isStringType()) 
-      ${attrib.name}: "", 
-#else
-      ${attrib.name}: null, 
-#end
-#else
-#if ($attrib.isStringType()) 
-      ${attrib.name}: "" 
-#else
-      ${attrib.name}: null 
-#end
-#end
-#end
-    }	
+    this.$LCentityName =  this.${_entityService}.getInitializedObject();	
 
 
     if (!_.isEmpty(this.ids)) {
@@ -284,7 +268,7 @@ export class $formComponentName implements OnInit {
     }
   }
 
-  deleteBadge = (${entity.keyAttributesNamesAsString(', ')}: any): void => {
+  deleteBadge = (${entity.keyAttributesNamesAsString(': any, ')}: any): void => {
     // Call delete service
     this._${LCentityName}Service.delete(${entity.keyAttributesNamesAsString(', ')}).subscribe(
       (result:any) => {

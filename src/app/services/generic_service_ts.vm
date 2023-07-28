@@ -19,6 +19,12 @@ export abstract class GenericService<T> {
     }
 
     /**
+    * Returns an initialized object
+    * @return object type T
+    */
+    public abstract getInitializedObject(): T;
+
+    /**
      * Get all object by the GET Rest service
      * @return promise
      */
@@ -35,7 +41,7 @@ export abstract class GenericService<T> {
      * @return promise
      */
     public getSingle(keys: any[]): Observable<T> {
-     return this._http.get<T>(this.actionUrl + this.getKeysUrl(keys))
+     return this._http.get<T>(this.actionUrl + '/' + this.getKeysUrl(keys))
        .pipe(
          catchError(this.handleError)
        );
@@ -61,7 +67,7 @@ export abstract class GenericService<T> {
      * @return promise
      */
     public update(t: T, keys: any[]): Observable<T> {
-     return this._http.put<T>(this.actionUrl + this.getKeysUrl(keys), JSON.stringify(t), { headers: this.headers })
+     return this._http.put<T>(this.actionUrl + '/' + this.getKeysUrl(keys), JSON.stringify(t), { headers: this.headers })
        .pipe(
          catchError(this.handleError)
        );
@@ -73,7 +79,7 @@ export abstract class GenericService<T> {
      * @return promise
      */
     public delete(...keys: any[]): Observable<HttpResponse<any>> {
-     return this._http.delete<HttpResponse<any>>(this.actionUrl + this.getKeysUrl(keys))
+     return this._http.delete<HttpResponse<any>>(this.actionUrl + '/' + this.getKeysUrl(keys))
        .pipe(
          catchError(this.handleError)
        );
@@ -90,10 +96,15 @@ export abstract class GenericService<T> {
      * @return promise
      */
     private getKeysUrl = (keys: any[]): string => {
-        let idsUrl = '';
+        let idsUrl = ''; 
 
-        keys.forEach(element => {
-            idsUrl += `${DOLLAR}{element}/`;
+        //Los end-points no terminan con '/'
+        keys.forEach((element, index) => {
+           if (index === keys.length - 1) {
+             idsUrl += `${DOLLAR}{element}`;
+           } else {
+             idsUrl += `${DOLLAR}{element}/`;
+           }
         });
 
         return idsUrl;

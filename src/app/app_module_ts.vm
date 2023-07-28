@@ -27,8 +27,10 @@ import { AboutComponent } from './about/about.component';
 import { DeleteDialogComponent } from './delete-dialog/delete-dialog.component';
 import { HomeListComponent } from './home-list/home-list.component';
 
-// Modules
+// Modules Angular
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+// Modules Angular Material
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -38,6 +40,14 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+// Modules PrimeNG
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { CalendarModule } from 'primeng/calendar';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { DropdownModule } from 'primeng/dropdown';
 
 // Services
 import { Configuration } from './app.configuration';
@@ -81,7 +91,13 @@ import { PagerService } from './services/pager.service';
     MatDialogModule,
     MatInputModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    InputTextModule,
+    ButtonModule,
+    CardModule,
+    CalendarModule,
+    InputNumberModule,
+    DropdownModule
   ],
   providers: [
 #foreach ($entity in $selectedEntities)
